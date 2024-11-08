@@ -2,13 +2,13 @@ import { ipcMain, BrowserWindow, app } from 'electron';
 import windowManager from '../utils/windowManager';
 import WindowName from '../types/WindowName';
 import { fileUtils } from '../utils/fileManager';
+import { getWeatherData } from '../index'; 
 
 const ipcWindow = {
   register() {
     ipcMain.on('window:minimize', (event) => {
       const window = BrowserWindow.fromId(event.sender.id);
       if (window) {
-        // 添加此行检查window是否为null
         window.minimize();
       } else {
         console.error('Failed to minimize: Window not found');
@@ -26,6 +26,10 @@ const ipcWindow = {
       const window = BrowserWindow.fromId(event.sender.id);
       const file = await fileUtils.readFile();
       await window.webContents.send('common:openFile', file);
+    });
+
+    ipcMain.handle('get-weather', async (event, { province, city }) => {
+      return await getWeatherData(province, city);
     });
   }
 };
